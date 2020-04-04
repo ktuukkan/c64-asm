@@ -1,5 +1,5 @@
 !cpu 6502
-!to "sprite-sinus.prg",cbm
+!to "movement.prg",cbm
 
 
 ;; basic loader
@@ -9,11 +9,12 @@
 
 ;; load a sprite (drawn with SpritePad and exported as bin)
 * = $2000
-    !bin "face.bin"
+    !bin "assets/smiley.bin"
 
 * = $c000
     ;; current sinus table index
     position_index = 255
+    foobar = 255
     sei
     jsr init_sprite
     ldy #$7f

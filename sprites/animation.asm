@@ -1,5 +1,5 @@
 !cpu 6502
-!to "sprite-anim.prg",cbm
+!to "animation.prg",cbm
 
 ;; basic loader
 * = $0801
@@ -8,14 +8,14 @@
 
 ;; load a sprites, exported from SpritePad as raw bin
 * = $2000
-    !bin "pulsar.bin"
+    !bin "assets/pulsar.bin"
 
 * = $c000
     delay = $fb     ;; unused zero-page registers: $0002, $00fb - $00fe
     frame = $fc     ;; these can be freely used for counters etc.
     sei
     jsr init_sprite
-    ldy #$7f        ;; set up interrupt on raster line 0
+    ldy #$7f        ;; set raster beam interrupt
     sty $dc0d
     sty $dd0d
     lda $dc0d
@@ -26,7 +26,7 @@
     ldx #>irq
     sta $314
     stx $315
-    lda #$00
+    lda #$00        ;; irq at line 0
     sta $d012
     lda $d011
     and #$7f
@@ -48,26 +48,23 @@ animate_sprite
     cpx #$89        ;; 140 dec (we have 10 sprites from 128 to 138)
     bne next_frame  ;; advance next frame if not frame 6 yet
     
-    ldx #$80        ;; last sprite reached, reset counter
+    ldx #$7f        ;; last frame reached, reset to "zero" (128-1)
     stx $07f8
-
 next_frame
     inc $07f8       ;; advance animation by incrementing sprite pointer
 skip    
     lda delay       ;; flip the delay byte between 0 and 1
     eor #$01
     sta delay
-done
     rts
 
 init_sprite
-    
     lda #$00        ;; blackout
     sta $d020
     sta $d021
     sta frame
     sta delay
-    
+
     lda #$80        ;; set sprite location (128 * 64 = 8192 = $2000)
     sta $07f8
     

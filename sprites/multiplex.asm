@@ -8,7 +8,7 @@
 
 ;; load a sprite (drawn with SpritePad and exported as bin)
 * = $2000
-    !bin "face.bin"
+    !bin "assets/smiley.bin"
 
 * = $c000
     top_row = 50

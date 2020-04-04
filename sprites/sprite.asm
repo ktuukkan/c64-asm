@@ -8,7 +8,7 @@
 
 ;; load a sprite (drawn with SpritePad and exported as bin)
 * = $2000
-    !bin "face.bin"
+    !bin "assets/smiley.bin"
 
 * = $c000
     
@@ -30,7 +30,7 @@
 
     ;; set location of sprite 0
     ;; sprite locations starting at $d000 in x/y pairs (0-255)
-    ;; the x/y ce that each sprite has size 24 x 21 pixels
+    ;; notice that each sprite has size of 24 x 21 pixels
     lda #$99
     sta $d000       ;; x = $99
     sta $d001       ;; y = $99 .. $d002 is the x of sprite 1 etc.
@@ -49,4 +49,3 @@
     sta $d026
 
     jmp *
-    
