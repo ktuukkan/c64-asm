@@ -11,7 +11,13 @@
     !bin "face.bin"
 
 * = $c000
+    top_row = 50
+    irq_counter = $fb
     sei
+    lda #$00
+    tay
+    tax
+    sta irq_counter
     jsr init_sprites
     ldy #$7f
     sty $dc0d
@@ -20,11 +26,11 @@
     lda $dd0d
     lda #$01
     sta $d01a
-    lda #<irq1
-    ldx #>irq1
+    lda #<irq
+    ldx #>irq
     sta $314
     stx $315
-    lda #$30
+    lda interrupts
     sta $d012
     lda $d011
     and #$7f
@@ -37,8 +43,12 @@ init_sprites
 setup
     lda #$80        ;; set sprite pointers (128 * 64 = 8192 = $2000)
     sta $07f8,x
-
-    lda #$ff-224    ;; set static x locations (sprite size 24 x 21)
+    lda #$07        ;; set sprite main color yellow
+    sta $d027,x
+    inx
+    cpx #$08
+    bne setup
+    lda #$ff-224    ;; set x locations (sprite size 24 x 21)
     sta $d000
     lda #$ff-192
     sta $d002
@@ -54,14 +64,6 @@ setup
     sta $d00c
     lda #$ff
     sta $d00e
-
-    lda #$07        ;; set sprite 0 main color to yellow
-    sta $d027,x
-
-    inx
-    cpx #$08
-    bne setup
-
     lda #$00        ;; set multicolor 0 to black
     sta $d025
     lda #$0f        ;; set multicolor 1 to light gray
@@ -87,90 +89,24 @@ update_sprite_y
     stx $d00f
     rts
 
-irq1
+irq
     inc $d019
     jsr update_sprite_y
-    lda #$30+25
+    ldx irq_counter
+    lda interrupts,x
     sta $d012
-    lda #<irq2
-    ldx #>irq2
+    lda #<irq
+    ldx #>irq
     sta $314
     stx $315
+    inc irq_counter
+    lda irq_counter
+    cmp #$08
+    bne done
+    lda #$00
+    sta irq_counter
+done
     jmp $ea81
 
-irq2
-    inc $d019
-    jsr update_sprite_y
-    lda #$30+50
-    sta $d012
-    lda #<irq3
-    ldx #>irq3
-    sta $314
-    stx $315
-    jmp $ea81
-
-irq3
-    inc $d019
-    jsr update_sprite_y
-    lda #$30+75
-    sta $d012
-    lda #<irq4
-    ldx #>irq4
-    sta $314
-    stx $315
-    jmp $ea81
-
-irq4
-    inc $d019
-    jsr update_sprite_y
-    lda #$30+100
-    sta $d012
-    lda #<irq5
-    ldx #>irq5
-    sta $314
-    stx $315
-    jmp $ea81
-
-irq5
-    inc $d019
-    jsr update_sprite_y
-    lda #$30+125
-    sta $d012
-    lda #<irq6
-    ldx #>irq6
-    sta $314
-    stx $315
-    jmp $ea81
-
-irq6
-    inc $d019
-    jsr update_sprite_y
-    lda #$30+150
-    sta $d012
-    lda #<irq7
-    ldx #>irq7
-    sta $314
-    stx $315
-    jmp $ea81
-
-irq7
-    inc $d019
-    jsr update_sprite_y
-    lda #$30+175
-    sta $d012
-    lda #<irq8
-    ldx #>irq8
-    sta $314
-    stx $315
-    jmp $ea81
-
-irq8
-    inc $d019
-    jsr update_sprite_y
-    lda #$30
-    sta $d012
-    lda #<irq1
-    ldx #>irq1
-    sta $314
-    stx $315
-    jmp $ea81
+interrupts
+!byte $30, $30+25, $30+50,$30+75, $30+100, $30+125, $30+150, $30+175
