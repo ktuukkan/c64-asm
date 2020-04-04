@@ -11,7 +11,6 @@
     !bin "assets/smiley.bin"
 
 * = $c000
-    top_row = 50
     irq_counter = $fb
     sei
     lda #$00
@@ -75,11 +74,11 @@ setup
     rts
 
 update_sprite_y
-    ldx $d012
+    ldx $d012       ;; get current raster line
+    inx             ;; add some padding
     inx
     inx
-    inx
-    stx $d001
+    stx $d001       ;; set as y-coordinate of all sprites
     stx $d003
     stx $d005
     stx $d007
@@ -109,4 +108,4 @@ done
     jmp $ea81
 
 interrupts
-!byte $30, $30+25, $30+50,$30+75, $30+100, $30+125, $30+150, $30+175
+!byte 50, 75, 100, 125, 150, 175, 200, 225
