@@ -18,9 +18,6 @@ RASTERLINE = $fe
     tya
     sta $d020
     sta $d021
-    lda $d011
-    and #%11101111
-    sta $d011
     ldy #$7f
     sty $dc0d
     sty $dd0d
@@ -32,7 +29,7 @@ RASTERLINE = $fe
     ldx #>irq
     sta $314
     stx $315
-    lda #$93           ;; irq at line 149
+    lda #$8f           ;; irq at line 143
     sta $d012
     lda $d011
     and #$7f
@@ -42,29 +39,34 @@ RASTERLINE = $fe
 
 irq
     inc $d019
-    ldx #$00
-    lda #$96            ;; rasterbar at line 150
-    sta RASTERLINE
-draw_raster
-    lda RASTERLINE      ;; wait for it..
+    lda $d011
+    and #%11101111
+    sta $d011
+    lda #$90           ;; rasterbar at line 144
     cmp $d012
     bne *-3
+    ldx #$00
+draw_raster
     lda colors,x        ;; pick a color
-    sta $d020           ;; .. and paint a line
-    inc RASTERLINE      ;; increment line & color counters
+    ldy timing,x        ;; pick timing value
+    dey
+    bne *-1             ;; wait for it..
+    sta $d020           ;; ..and paint the line
     inx
-    cpx #$1d            ;; check if all colors painted
-    nop
-    nop                 ;; waste some cycles to stabilize
-    nop
+    cpx #$1d            ;; check if all lines painted
     bne draw_raster
-exit
+    lda $d011
+    ora #%00010000
+    sta $d011
     lda #$00
     sta $d020
-    lda #$96
-    sta RASTERLINE
+    sta $d021
+    inc RASTERLINE
     jmp $ea81
-
+    
 colors
 !byte DBLUE, BLACK, LBLUE, DBLUE, LBLUE, LBLUE, CYAN, LBLUE, CYAN, CYAN, WHITE, CYAN, WHITE, WHITE
-!byte WHITE, WHITE, CYAN, WHITE, CYAN, CYAN, LBLUE, CYAN, LBLUE, LBLUE, DBLUE, LBLUE, BLACK, DBLUE
+!byte WHITE, WHITE, CYAN, WHITE, CYAN, CYAN, LBLUE, CYAN, LBLUE, LBLUE, DBLUE, LBLUE, BLACK, DBLUE, BLACK
+
+timing
+!byte 9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9
