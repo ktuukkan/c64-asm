@@ -6,7 +6,6 @@ LBLUE = 14
 CYAN  = 3
 BLACK = 0
 WHITE = 1
-RASTERLINE = $fe
 
 * = $0801
     !byte $0C,$08,$0A,$00,$9E,$20,$34,$30,$39,$36,$00,$00,$00
@@ -39,10 +38,10 @@ RASTERLINE = $fe
 
 irq
     inc $d019
-    lda $d011
+    lda $d011           ;; disable screen
     and #%11101111
     sta $d011
-    lda #$90           ;; rasterbar at line 144
+    lda #$90            ;; wait for line 144
     cmp $d012
     bne *-3
     ldx #$00
@@ -55,13 +54,9 @@ draw_raster
     inx
     cpx #$1d            ;; check if all lines painted
     bne draw_raster
-    lda $d011
+    lda $d011           ;; enable screen.. doesn't seem to work :(
     ora #%00010000
     sta $d011
-    lda #$00
-    sta $d020
-    sta $d021
-    inc RASTERLINE
     jmp $ea81
     
 colors
