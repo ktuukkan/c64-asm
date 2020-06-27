@@ -15,8 +15,11 @@ WHITE = 1
     lda $00
     txa
     tya
-    sta $d020
+    sta $d020           ;; black
     sta $d021
+    lda $d011           ;; disable screen
+    and #%11101111
+    sta $d011           ;; irq setup
     ldy #$7f
     sty $dc0d
     sty $dd0d
@@ -28,9 +31,9 @@ WHITE = 1
     ldx #>irq
     sta $314
     stx $315
-    lda #$8f           ;; irq at line 143
+    lda #$8f            ;; irq at line 143
     sta $d012
-    lda $d011
+    lda $d011           ;; clear $d012 9th bit          
     and #$7f
     sta $d011
     cli
@@ -38,9 +41,6 @@ WHITE = 1
 
 irq
     inc $d019
-    lda $d011           ;; disable screen
-    and #%11101111
-    sta $d011
     lda #$90            ;; wait for line 144
     cmp $d012
     bne *-3
@@ -54,9 +54,6 @@ draw_raster
     inx
     cpx #$1d            ;; check if all lines painted
     bne draw_raster
-    lda $d011           ;; enable screen.. doesn't seem to work :(
-    ora #%00010000
-    sta $d011
     jmp $ea81
     
 colors

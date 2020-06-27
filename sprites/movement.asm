@@ -12,9 +12,7 @@
     !bin "assets/smiley.bin"
 
 * = $c000
-    ;; current sinus table index
-    position_index = 255
-    foobar = 255
+    position_index = 255    ;; current sinus table index
     sei
     jsr init_sprite
     ldy #$7f
@@ -39,9 +37,8 @@
 irq
     dec $d019
     inc position_index
+    ;; update sprite x/y from sinus tables    
     ldx position_index
-
-    ;; update sprite x/y from sinus tables
     lda sinus_x,x
     sta $d000
     lda sinus_y,x
@@ -49,7 +46,7 @@ irq
     jmp $ea81
 
 init_sprite
-    ;; set sprite location (128 * 64 = 8192 = $2000)
+    ;; set sprite 0 pointer (128 * 64 = 8192 = $2000)
     lda #$80
     sta $07f8
     ;; display sprite 0
