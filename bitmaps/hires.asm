@@ -38,14 +38,16 @@ draw_image
     and #$fc
     ora #$02
     sta $dd00
-    ;; enable bitmap graphics and hires mode ($d011=$3b, $d016=8)
+    ;; enable bitmap graphics
     lda #$3b
     sta $d011
+    ;; enable  hires mode
     lda #$08
     sta $d016
-    ;; set screen ram and bitmap locations
-    ;; 1 * $0400 = $0400 (screen), 8 * $0400 = $2000 (bitmap)
-    lda #$18    ; #%00011000 / $10 (1) + $08 (8)
+    ;; set screen and bitmap locations (relative to bank)
+    ;; Bits 4-7: screen location (0..15 * 1024)
+    ;; Bit 3: bitmap location (0 = $0000, 1 = $2000)
+    lda #$18    ; #%00011000
     sta $d018
 holdit
     jmp holdit

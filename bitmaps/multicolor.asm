@@ -11,7 +11,7 @@ bitmap_bgcolor = $8710
 screen_mem = $4400
 
 ;; color mem always at $d800 (bitmap_color)
-color_mem = $d800       
+color_mem = $d800
 
 ;; load image file (eg. Koala, .kla), skip two-byte header
 * = bitmap_address
@@ -47,7 +47,7 @@ draw_image
     sta color_mem+768,x
     inx
     bne draw_image
-    ;; switch to video bank 2 for Koala
+    ;; switch to video bank 1
     lda $dd00
     and #$fc
     ora #$02
@@ -58,9 +58,10 @@ draw_image
     ;; turn on multicolor graphics
     lda #$18
     sta $d016
-    ;; set screen ram and bitmap locations
-    ;; 1 * $0400 = $0400 (screen), 8 * $0400 = $2000 (bitmap)
-    lda #$18    ; #%00011000 / $10 (1) + $08 (8)
+    ;; set screen and bitmap locations (relative to bank)
+    ;; Bits 4-7: screen location (0..15 * 1024)
+    ;; Bit 3: bitmap location (0 = $0000, 1 = $2000)
+    lda #$18    ; $18 = #%00011000 (screen $0400, bitmap $2000)
     sta $d018
 holdit
     jmp holdit
